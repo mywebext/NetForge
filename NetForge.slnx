@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NetForge.csproj" />
+  <Project Path="Tools/OpCodeBuilder/OpCodeBuilder.csproj" Id="93a42643-cb71-437e-83ad-aefd04e8b589" />
+</Solution>

@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "kgE9TIXrwLA=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Ken\\source\\repos\\NetForge\\Tools\\OpCodeBuilder\\OpCodeBuilder.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Ken\\.nuget\\packages\\ctxsignlib\\1.1.7\\ctxsignlib.1.1.7.nupkg.sha512",
+    "C:\\Users\\Ken\\.nuget\\packages\\system.formats.asn1\\8.0.0\\system.formats.asn1.8.0.0.nupkg.sha512",
+    "C:\\Users\\Ken\\.nuget\\packages\\system.security.cryptography.pkcs\\8.0.0\\system.security.cryptography.pkcs.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
