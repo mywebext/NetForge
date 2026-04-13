@@ -53,7 +53,8 @@ public static class OpCodeEnumGenerator
                     continue;
 
                 int combinedValue = (scopeValue * 100) + commandValue;
-                string memberName = $"{scope}{command}";
+
+                string memberName = scopeValue == 0 ? $"{command}" : $"{scope}{command}";
 
                 if (includeComments)
                 {

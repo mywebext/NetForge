@@ -1,4 +1,5 @@
-﻿//NetForge.Networking.Packets.Library/Packetlib.cs
+﻿using NetForge.Networking.Managers;
+using NetForge.Networking.Nodes;
 using System;
 
 namespace NetForge.Networking.Packets.Library
@@ -6,15 +7,17 @@ namespace NetForge.Networking.Packets.Library
     public abstract class Packetlib
     {
         private int? _version;
+        protected Node Node { get; }
+        protected SessionManager SessionManager => Node.SessionManager;
+        protected AckManager AckManager => Node.AckManager;
 
-        /// <summary>
-        /// Canonical packet entry point.
-        /// </summary>
+        protected Packetlib(Node node)
+        {
+            Node = node ?? throw new ArgumentNullException(nameof(node));
+        }
+
         public abstract void Process(Packet packet);
 
-        /// <summary>
-        /// Convenience overload for header + payload.
-        /// </summary>
         public virtual void Process(PacketHeader header, ArraySegment<byte> payload)
         {
             ArgumentNullException.ThrowIfNull(header);
@@ -26,9 +29,6 @@ namespace NetForge.Networking.Packets.Library
             });
         }
 
-        /// <summary>
-        /// Convenience overload for header + raw payload bytes.
-        /// </summary>
         public virtual void Process(PacketHeader header, byte[]? payload)
         {
             ArgumentNullException.ThrowIfNull(header);
@@ -38,13 +38,9 @@ namespace NetForge.Networking.Packets.Library
                 : new ArraySegment<byte>(payload));
         }
 
-        /// <summary>
-        /// Convenience overload for header only.
-        /// </summary>
         public virtual void Process(PacketHeader header)
         {
             ArgumentNullException.ThrowIfNull(header);
-
             Process(header, ArraySegment<byte>.Empty);
         }
 
