@@ -1,6 +1,7 @@
 ﻿//NetForge.Networking.Packets/PacketHeaderReader.cs
 using NetForge.Networking.Enums;
 using System.Buffers.Binary;
+using System.Net.Sockets;
 
 namespace NetForge.Networking.Packets;
 

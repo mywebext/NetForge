@@ -1,8 +1,8 @@
 ﻿// NetForge.Networking.Managers/SessionManager.cs
+using NetForge.Networking.Enums;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Security.Cryptography;
 
 namespace NetForge.Networking.Managers;
 
@@ -12,178 +12,141 @@ public sealed class SessionManager
     {
         private readonly object _lock = new();
 
-        public Session(ulong sessionId, ulong clientInstanceId, IPEndPoint endPoint)
-        {
-            ArgumentNullException.ThrowIfNull(endPoint);
+        public ulong SessionId { get; }
+        public ulong ClientInstanceId { get; private set; }
+        public IPEndPoint? EndPoint { get; private set; }
+        public DateTime EstablishedUtc { get; }
+        public DateTime LastSeenUtc { get; private set; }
 
+        public bool Established { get; private set; }
+
+        // Raw score used internally by your tests.
+        public int TrustScore { get; private set; }
+
+        public TrustModel TrustLevel => ResolveTrustLevel(TrustScore);
+
+        public Session(ulong sessionId, ulong clientInstanceId, IPEndPoint? endPoint)
+        {
             SessionId = sessionId;
             ClientInstanceId = clientInstanceId;
             EndPoint = endPoint;
-            LastSeenUtc = DateTime.UtcNow;
+            EstablishedUtc = DateTime.UtcNow;
+            LastSeenUtc = EstablishedUtc;
+
             Established = false;
+            TrustScore = 0;
         }
 
-        public ulong SessionId { get; }
-        public ulong ClientInstanceId { get; }
-        public IPEndPoint EndPoint { get; private set; }
-        public DateTime LastSeenUtc { get; private set; }
-        public bool Established { get; private set; }
-
-        public void Update(IPEndPoint endPoint, bool established)
+        public void MarkEstablished()
         {
-            ArgumentNullException.ThrowIfNull(endPoint);
-
             lock (_lock)
             {
-                EndPoint = endPoint;
-                LastSeenUtc = DateTime.UtcNow;
-                Established = established;
-            }
-        }
-
-        public void Touch(IPEndPoint endPoint)
-        {
-            ArgumentNullException.ThrowIfNull(endPoint);
-
-            lock (_lock)
-            {
-                EndPoint = endPoint;
+                Established = true;
                 LastSeenUtc = DateTime.UtcNow;
             }
         }
 
-        public SessionSnapshot Snapshot()
+        public void Touch(IPEndPoint? endPoint = null, ulong? clientInstanceId = null)
         {
             lock (_lock)
             {
-                return new SessionSnapshot(
-                    SessionId,
-                    ClientInstanceId,
-                    EndPoint,
-                    LastSeenUtc,
-                    Established);
+                if (endPoint is not null)
+                    EndPoint = endPoint;
+
+                if (clientInstanceId.HasValue && clientInstanceId.Value != 0)
+                    ClientInstanceId = clientInstanceId.Value;
+
+                LastSeenUtc = DateTime.UtcNow;
             }
         }
 
-        public bool IsExpired(DateTime nowUtc, TimeSpan timeout)
+        public void SetTrustScore(int score)
         {
             lock (_lock)
             {
-                return (nowUtc - LastSeenUtc) > timeout;
+                TrustScore = Math.Clamp(score, 0, 100);
+                LastSeenUtc = DateTime.UtcNow;
             }
+        }
+
+        public void AdjustTrustScore(int delta)
+        {
+            lock (_lock)
+            {
+                TrustScore = Math.Clamp(TrustScore + delta, 0, 100);
+                LastSeenUtc = DateTime.UtcNow;
+            }
+        }
+
+        public bool MeetsTrust(TrustModel minimum)
+        {
+            lock (_lock)
+            {
+                return Established && TrustScore >= (int)minimum;
+            }
+        }
+
+        private static TrustModel ResolveTrustLevel(int score)
+        {
+            if (score >= (int)TrustModel.Authenticated) return TrustModel.Authenticated;
+            if (score >= (int)TrustModel.Elevated) return TrustModel.Elevated;
+            if (score >= (int)TrustModel.Trusted) return TrustModel.Trusted;
+            if (score >= (int)TrustModel.Validated) return TrustModel.Validated;
+            if (score >= (int)TrustModel.Basic) return TrustModel.Basic;
+            if (score >= (int)TrustModel.HandShaking) return TrustModel.HandShaking;
+            return TrustModel.None;
         }
     }
 
-    public sealed record SessionSnapshot(
-        ulong SessionId,
-        ulong ClientInstanceId,
-        IPEndPoint EndPoint,
-        DateTime LastSeenUtc,
-        bool Established);
+    private readonly ConcurrentDictionary<ulong, Session> _sessions = new();
 
-    private readonly ConcurrentDictionary<ulong, Session> _bySessionId = new();
-    private readonly ConcurrentDictionary<ulong, ulong> _sessionIdByClientInstanceId = new();
-
-    public Session UpsertFromClientHello(ulong clientInstanceId, IPEndPoint endPoint)
+    public Session Create(ulong sessionId, ulong clientInstanceId, IPEndPoint? endPoint)
     {
-        ArgumentNullException.ThrowIfNull(endPoint);
-
-        if (clientInstanceId == 0)
-            throw new ArgumentOutOfRangeException(nameof(clientInstanceId), "ClientInstanceId cannot be 0.");
-
-        if (_sessionIdByClientInstanceId.TryGetValue(clientInstanceId, out ulong existingSessionId) &&
-            _bySessionId.TryGetValue(existingSessionId, out Session? existingSession))
-        {
-            existingSession.Update(endPoint, established: true);
-            return existingSession;
-        }
-
-        ulong newSessionId = NewSessionId();
-
-        Session session = new(newSessionId, clientInstanceId, endPoint);
-        session.Update(endPoint, established: true);
-
-        _bySessionId[newSessionId] = session;
-        _sessionIdByClientInstanceId[clientInstanceId] = newSessionId;
-
+        var session = new Session(sessionId, clientInstanceId, endPoint);
+        _sessions[sessionId] = session;
         return session;
     }
 
-    public bool TryGetBySessionId(ulong sessionId, out Session? session)
+    public Session Upsert(ulong sessionId, ulong clientInstanceId, IPEndPoint? endPoint)
     {
-        return _bySessionId.TryGetValue(sessionId, out session);
-    }
-
-    public bool TryGetByClientInstanceId(ulong clientInstanceId, out Session? session)
-    {
-        session = null;
-
-        if (!_sessionIdByClientInstanceId.TryGetValue(clientInstanceId, out ulong sessionId))
-            return false;
-
-        return _bySessionId.TryGetValue(sessionId, out session);
-    }
-
-    public bool Touch(ulong sessionId, IPEndPoint endPoint)
-    {
-        ArgumentNullException.ThrowIfNull(endPoint);
-
-        if (!_bySessionId.TryGetValue(sessionId, out Session? session))
-            return false;
-
-        session.Touch(endPoint);
-        return true;
-    }
-
-    public bool RemoveBySessionId(ulong sessionId)
-    {
-        if (!_bySessionId.TryRemove(sessionId, out Session? removed))
-            return false;
-
-        _sessionIdByClientInstanceId.TryRemove(removed.ClientInstanceId, out _);
-        return true;
-    }
-
-    public int Prune(TimeSpan timeout)
-    {
-        DateTime nowUtc = DateTime.UtcNow;
-        int removedCount = 0;
-
-        foreach (KeyValuePair<ulong, Session> entry in _bySessionId)
-        {
-            Session session = entry.Value;
-
-            if (!session.IsExpired(nowUtc, timeout))
-                continue;
-
-            if (_bySessionId.TryRemove(entry.Key, out Session? removed))
+        return _sessions.AddOrUpdate(
+            sessionId,
+            _ => new Session(sessionId, clientInstanceId, endPoint),
+            (_, existing) =>
             {
-                _sessionIdByClientInstanceId.TryRemove(removed.ClientInstanceId, out _);
-                removedCount++;
-            }
-        }
-
-        return removedCount;
+                existing.Touch(endPoint, clientInstanceId);
+                return existing;
+            });
     }
 
-    public void Clear()
+    public bool TryGet(ulong sessionId, out Session? session)
+        => _sessions.TryGetValue(sessionId, out session);
+
+    public bool Remove(ulong sessionId)
+        => _sessions.TryRemove(sessionId, out _);
+
+    public bool MeetsTrust(ulong sessionId, TrustModel minimum)
     {
-        _bySessionId.Clear();
-        _sessionIdByClientInstanceId.Clear();
+        return _sessions.TryGetValue(sessionId, out Session? session) &&
+               session is not null &&
+               session.MeetsTrust(minimum);
     }
 
-    private static ulong NewSessionId()
+    public bool AdjustTrust(ulong sessionId, int delta)
     {
-        Span<byte> buffer = stackalloc byte[8];
-        ulong sessionId;
+        if (!_sessions.TryGetValue(sessionId, out Session? session) || session is null)
+            return false;
 
-        do
-        {
-            RandomNumberGenerator.Fill(buffer);
-            sessionId = BitConverter.ToUInt64(buffer);
-        }
-        while (sessionId == 0);
+        session.AdjustTrustScore(delta);
+        return true;
+    }
 
-        return sessionId;
+    public bool SetTrust(ulong sessionId, int score)
+    {
+        if (!_sessions.TryGetValue(sessionId, out Session? session) || session is null)
+            return false;
+
+        session.SetTrustScore(score);
+        return true;
     }
 }
