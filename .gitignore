@@ -6,3 +6,8 @@
 *.key
 *.pfx
 *.cer
+.vs/
+.Tools/OpCodeBuilder/obj/
+.Tools/OpCodeBuilder/bin/
+.bin/
+.obj/
