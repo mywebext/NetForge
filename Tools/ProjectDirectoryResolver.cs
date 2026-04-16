@@ -20,6 +20,6 @@ public partial class Program
         }
 
         throw new DirectoryNotFoundException(
-            $"Could not resolve NetForge project root from: {AppContext.BaseDirectory}");
+            $"Could not resolve NetForge project root from: {AppContext.BaseDirectory}");//Commit trigger
     }
 }

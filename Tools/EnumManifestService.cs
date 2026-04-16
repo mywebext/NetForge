@@ -151,7 +151,7 @@ namespace NetForge
                                     ? name
                                     : $"{currentRelative}/{name}");
 
-                            excludes.Add(rel.EndsWith("/", StringComparison.Ordinal) ? rel : rel + "/");
+                            excludes.Add(rel.EndsWith("/", StringComparison.Ordinal) ? rel : rel + "/"); //Commit trigger
                         }
                     }
 

@@ -25,7 +25,7 @@ namespace NetForge
 
             public static bool OpCodesChanged()
             {
-                string projectRoot = NetForge.Program.ResolveProjectRoot();
+                string projectRoot = NetForge.Program.ResolveProjectRoot();//Commit trigger
                 if (Null(projectRoot))
                     throw new ArgumentException("Project root is required.", nameof(projectRoot));
 
