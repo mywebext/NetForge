@@ -1,0 +1,174 @@
+{
+  "manifestVersion": 1,
+  "createdUtc": "2026-04-13T22:36:38Z",
+  "root": ".",
+  "excludes": [
+    {
+      "path": ".git/"
+    },
+    {
+      "path": ".git/"
+    },
+    {
+      "path": ".git/"
+    },
+    {
+      "path": ".vs/"
+    },
+    {
+      "path": ".vs/"
+    },
+    {
+      "path": ".vs/"
+    },
+    {
+      "path": "Networking/Managers/"
+    },
+    {
+      "path": "Networking/Managers/"
+    },
+    {
+      "path": "Networking/Managers/"
+    },
+    {
+      "path": "Networking/Nodes/"
+    },
+    {
+      "path": "Networking/Nodes/"
+    },
+    {
+      "path": "Networking/Nodes/"
+    },
+    {
+      "path": "Networking/Packets/"
+    },
+    {
+      "path": "Networking/Packets/"
+    },
+    {
+      "path": "Networking/Packets/"
+    },
+    {
+      "path": "Networking/Protocols/"
+    },
+    {
+      "path": "Networking/Protocols/"
+    },
+    {
+      "path": "Networking/Protocols/"
+    },
+    {
+      "path": "Security/"
+    },
+    {
+      "path": "Security/"
+    },
+    {
+      "path": "Security/"
+    },
+    {
+      "path": "Test/"
+    },
+    {
+      "path": "Test/"
+    },
+    {
+      "path": "Test/"
+    },
+    {
+      "path": "Tools/"
+    },
+    {
+      "path": "Tools/"
+    },
+    {
+      "path": "Tools/"
+    },
+    {
+      "path": "bin/"
+    },
+    {
+      "path": "bin/"
+    },
+    {
+      "path": "bin/"
+    },
+    {
+      "path": "obj/"
+    },
+    {
+      "path": "obj/"
+    },
+    {
+      "path": "obj/"
+    },
+    {
+      "path": ".gitignore"
+    },
+    {
+      "path": "LICENSE"
+    },
+    {
+      "path": "NetForge.csproj"
+    },
+    {
+      "path": "NetForge.slnx"
+    },
+    {
+      "path": "Networking/Functions.cs"
+    },
+    {
+      "path": "Program.cs"
+    },
+    {
+      "path": "README.md"
+    }
+  ],
+  "files": [
+    {
+      "path": "Networking/Enums/Algorithms.cs",
+      "sha256": "E430A48C8E0DB4382812FA6D8E57FC6CFC4D5ED4CF7C4B9DE9DD1863388E810B",
+      "size": 380
+    },
+    {
+      "path": "Networking/Enums/CommandTypes.cs",
+      "sha256": "2308917E155A819776F7BD12AC453733F27E74169884651A65041CCAA84502C9",
+      "size": 1233
+    },
+    {
+      "path": "Networking/Enums/NodeTypes.cs",
+      "sha256": "152FE5A7C4944B0637B0D7780D4DDF4B7CAD3229384EF5522F0DFD76AD787B1C",
+      "size": 307
+    },
+    {
+      "path": "Networking/Enums/OpCodeGenerator.cs",
+      "sha256": "6DEB2291EC4F79342B14203FBF0547CE492467B4B20C4C02585EC81C7A1BC447",
+      "size": 4115
+    },
+    {
+      "path": "Networking/Enums/OpCodes.cs",
+      "sha256": "EC0DBBF8C83BBF27B18204433ABCC54C46C9B03049D13A43436F3528DC81C2B7",
+      "size": 32726
+    },
+    {
+      "path": "Networking/Enums/PacketFlags.cs",
+      "sha256": "E61F1257D7125747FD3E5C0A3DA2C65587C549B7B7F21C03694077C55D3A3123",
+      "size": 1608
+    },
+    {
+      "path": "Networking/Enums/ProtocolTypes.cs",
+      "sha256": "59E29865EE20263F0A8E71514ACEFDD72300781BE7C267D20EEB226F6FB039F3",
+      "size": 316
+    },
+    {
+      "path": "Networking/Enums/TrustModel.cs",
+      "sha256": "366B432C739889C0C2B06EB7582A142E99FA98CDCDC06CD66A3BDF290FFC0C12",
+      "size": 381
+    },
+    {
+      "path": "Networking/Enums/TypeScopes.cs",
+      "sha256": "22301448B43A9C606ED9A2345D569391E0C1F1B88EC04D11668062A65BEEB447",
+      "size": 458
+    }
+  ]
+}

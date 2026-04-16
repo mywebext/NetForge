@@ -5,11 +5,13 @@ using NetForge.Networking.Managers;
 using NetForge.Networking.Packets;
 using NetForge.Networking.Protocols;
 using NetForge.Security.Encryption;
+using NetForge.Networking.Packets.Library;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace NetForge.Networking.Nodes;
 
@@ -25,7 +27,7 @@ public abstract class Node
         NodeType = nodeType;
         Protocol = protocol;
         Signature = PacketSignatures.GetDefaultSignature(nodeType);
-
+        Packetlib Library = new Packetlib001(this);
         SessionManager = new SessionManager();
         AckManager = new AckManager();
         _encryptionKeys = new Dictionary<Algorithms, byte[]>();

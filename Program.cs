@@ -1,17 +1,23 @@
-﻿//Network/Program.cs
+﻿// NetForge/Program.cs
 using System;
 using System.Threading.Tasks;
 using NetForge.Test;
 
+
 namespace NetForge
 {
-    internal class Program
+    public partial class Program
     {
         static async Task Main(string[] args)
         {
             try
             {
-                //Program Entry or Test to perform
+                string projectRoot = Program.ResolveProjectRoot(); //@"C:\Users\Ken\source\repos\NetForge";
+
+                // Ensure enum manifest exists and is current before running tests/work.
+                await EnumManifestService.EnsureCurrentAsync(projectRoot);
+
+                // Program Entry or Test to perform
                 await PacketLoopbackTest.RunAsync();
             }
             catch (Exception ex)

@@ -22,14 +22,8 @@
       <Static>True</Static>
     </Using>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Tools\" />
-  </ItemGroup>
   
-  <Target Name="RunOpCodeBuilder"
-          BeforeTargets="BeforeBuild"
-          Condition="'$(SkipOpCodeBuilder)' != 'true'">
+  <Target Name="RunOpCodeBuilder" BeforeTargets="BeforeBuild" Condition="'$(SkipOpCodeBuilder)' != 'true'">
     <Message Text="Running OpCodeBuilder..." Importance="high" />
     <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\Tools\OpCodeBuilder\OpCodeBuilder.csproj&quot; -p:SkipOpCodeBuilder=true" />
   </Target>
