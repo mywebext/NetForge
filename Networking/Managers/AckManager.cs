@@ -12,7 +12,7 @@ namespace NetForge.Networking.Managers
     /// <remarks>
     /// ACKs are matched by the original outbound message ID using
     /// <c>AckForMessageId</c> from the inbound ACK packet header.
-    /// 
+    ///
     /// The expected remote endpoint is also validated so an ACK from an
     /// unexpected source does not complete the wrong pending wait.
     /// </remarks>
@@ -89,7 +89,7 @@ namespace NetForge.Networking.Managers
         /// <remarks>
         /// If the ACK comes from an unexpected endpoint, the pending entry is
         /// restored and the ACK is ignored.
-        /// 
+        ///
         /// If no matching pending wait exists, this method does nothing.
         /// </remarks>
         public void HandleAck(ulong ackForMessageId, IPEndPoint from)

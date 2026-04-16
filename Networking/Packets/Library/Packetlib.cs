@@ -7,6 +7,7 @@ namespace NetForge.Networking.Packets.Library
     public abstract class Packetlib
     {
         private int? _version;
+
         protected Node Node { get; }
         protected SessionManager SessionManager => Node.SessionManager;
         protected AckManager AckManager => Node.AckManager;

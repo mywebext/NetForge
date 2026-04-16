@@ -3,15 +3,14 @@ using NetForge.Networking;
 using NetForge.Networking.Enums;
 using NetForge.Networking.Managers;
 using NetForge.Networking.Packets;
+using NetForge.Networking.Packets.Library;
 using NetForge.Networking.Protocols;
 using NetForge.Security.Encryption;
-using NetForge.Networking.Packets.Library;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 
 namespace NetForge.Networking.Nodes;
 
@@ -20,6 +19,10 @@ public abstract class Node
     private readonly object _lock = new();
     private readonly Dictionary<Algorithms, byte[]> _encryptionKeys;
 
+    public SessionManager SessionManager { get; }
+    public AckManager AckManager { get; }
+    public Packetlib PacketLibrary { get; }
+
     protected Node(NodeTypes nodeType, IProtocol protocol)
     {
         ArgumentNullException.ThrowIfNull(protocol);
@@ -27,9 +30,11 @@ public abstract class Node
         NodeType = nodeType;
         Protocol = protocol;
         Signature = PacketSignatures.GetDefaultSignature(nodeType);
-        Packetlib Library = new Packetlib001(this);
-        SessionManager = new SessionManager();
+
+        SessionManager = new SessionManager(this);
         AckManager = new AckManager();
+        PacketLibrary = new Packetlib001(this);
+
         _encryptionKeys = new Dictionary<Algorithms, byte[]>();
         CreatedUtc = DateTime.UtcNow;
 
@@ -52,9 +57,7 @@ public abstract class Node
     }
 
     public NodeTypes NodeType { get; }
-
     public uint Signature { get; }
-
     public IProtocol Protocol { get; private set; }
 
     public ProtocolTypes ProtocolType
@@ -67,9 +70,6 @@ public abstract class Node
             }
         }
     }
-
-    public SessionManager SessionManager { get; }
-    public AckManager AckManager { get; }
 
     public bool IsConnected { get; private set; }
 

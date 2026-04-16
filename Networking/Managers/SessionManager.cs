@@ -1,5 +1,6 @@
 ﻿// NetForge.Networking.Managers/SessionManager.cs
 using NetForge.Networking.Enums;
+using NetForge.Networking.Nodes;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -8,6 +9,23 @@ namespace NetForge.Networking.Managers;
 
 public sealed class SessionManager
 {
+    private readonly Node? _ownerNode;
+    private readonly ConcurrentDictionary<ulong, Session> _sessions = new();
+
+    public SessionManager()
+    {
+    }
+
+    public SessionManager(Node ownerNode)
+    {
+        _ownerNode = ownerNode ?? throw new ArgumentNullException(nameof(ownerNode));
+    }
+
+    /// <summary>
+    /// The node that owns this session manager, if one was supplied.
+    /// </summary>
+    public Node? OwnerNode => _ownerNode;
+
     public sealed class Session
     {
         private readonly object _lock = new();
@@ -20,7 +38,9 @@ public sealed class SessionManager
 
         public bool Established { get; private set; }
 
-        // Raw score used internally by your tests.
+        /// <summary>
+        /// Raw trust score used internally.
+        /// </summary>
         public int TrustScore { get; private set; }
 
         public TrustModel TrustLevel => ResolveTrustLevel(TrustScore);
@@ -98,11 +118,9 @@ public sealed class SessionManager
         }
     }
 
-    private readonly ConcurrentDictionary<ulong, Session> _sessions = new();
-
     public Session Create(ulong sessionId, ulong clientInstanceId, IPEndPoint? endPoint)
     {
-        var session = new Session(sessionId, clientInstanceId, endPoint);
+        Session session = new(sessionId, clientInstanceId, endPoint);
         _sessions[sessionId] = session;
         return session;
     }
